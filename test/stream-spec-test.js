@@ -1,23 +1,23 @@
 var spec = require('stream-spec')
-  , RegexStream = require('../regex-stream.js')
+  , ReplayStream = require('../replay-stream.js')
 
 describe('Stream Specification Tests', function() {
 
   describe('# writable stream-spec', function(){
     it('should pass stream-spec validation for writable', function(){
-      writableStreamSpec(new RegexStream())
+      writableStreamSpec(new ReplayStream())
     })
   })
 
   describe('# readable stream-spec', function(){
     it('should pass stream-spec validation for readable', function(){
-      readableStreamSpec(new RegexStream())
+      readableStreamSpec(new ReplayStream())
     })
   })
 
   describe('# through stream-spec', function(){
     it('should pass stream-spec validation for through', function(){
-      readableStreamSpec(new RegexStream())
+      readableStreamSpec(new ReplayStream())
     })
   })
   

@@ -1,5 +1,5 @@
 {
-    "name": "regex-stream"
+    "name": "replay-stream"
   , "version": "0.0.1"
   , "description": "Use regular expressions to parse a stream into JSON"
   , "author": {
@@ -27,9 +27,9 @@
   , "scripts" : {
       "test": "./node_modules/mocha/bin/mocha -R spec"
     , "watch": "./node_modules/mocha/bin/mocha -R min --watch"
-    , "docs": "./node_modules/markdox/bin/markdox -o doc/api.md regex-stream.js ; ./node_modules/mocha/bin/mocha -R markdown > doc/tests.md"
+    , "docs": "./node_modules/markdox/bin/markdox -o doc/api.md replay-stream.js ; ./node_modules/mocha/bin/mocha -R markdown > doc/tests.md"
     }
-  , "main": "./regex-stream.js"
+  , "main": "./replay-stream.js"
   , "dependencies": {
       "moment": ">=1.7.0"
   }
@@ -44,6 +44,6 @@
       "type": "git"
     , "url": "https://graphex.ornl.gov/git/ojg"
   }
-  , "keywords": ["regex", "parser", "stream"]
+  , "keywords": ["replay", "parser", "stream"]
   , "engines": { "node": ">= 0.6.0 < 0.9.0" }
 }

@@ -1,4 +1,4 @@
-var RegexStream = require('../regex-stream.js')
+var ReplayStream = require('../replay-stream.js')
   , fs = require('fs')
   , path = require('path')
   , util = require('util')
@@ -6,7 +6,7 @@ var RegexStream = require('../regex-stream.js')
   , should = require('should')
   , moment = require('moment')
 
-describe('regex stream Tests', function() {
+describe('replay stream Tests', function() {
 
   before(function(done) {
     var outPath = path.join('test', 'output')
@@ -39,15 +39,9 @@ describe('regex stream Tests', function() {
   })
 
 
-  describe('# simple parse test', function(){
-    it('should pass simple regular expression parsing', function(){
-      simpleRegex()
-    })
-  })
-
-  describe('# timestamp parse test', function(){
-    it('should pass moment timestamp parsing', function(){
-      timestampRegex()
+  describe('# simple timestamp test', function(){
+    it('should pass simple timestamp reading', function(done){
+      simpleReplay(done)
     })
   })
 
@@ -58,64 +52,72 @@ describe('regex stream Tests', function() {
 var pauseUnpauseStream = function () {
   tester.createRandomStream(10000) //10k random numbers
     .pipe(tester.createUnpauseStream())
-    .pipe(new RegexStream())
+    .pipe(new ReplayStream())
     .pipe(tester.createPauseStream())  
 }
 
-var simpleRegex = function () {
+var simpleReplay = function (done) {
   // define the test data and output file
-  var inFile = path.join('test', 'input', 'simpleRegexData.txt')
-    , dataStream = fs.createReadStream(inFile, {encoding:'utf8'})
-    , outFile = path.join('test', 'output', 'simpleRegexOutput.txt')
-    , outStream = fs.createWriteStream(outFile, {encoding:'utf8'})
-    , parser = {
-        "regex": "^([\\S]+) ([\\S]+) ([\\S]+)"
-      , "labels": ["A label", "B label", "C label"]
-      , "delimiter": "\r\n|\n"
-      }
-    , expected = [
-        {"A label":"23","B label":"45","C label":"67"}
-      , {"A label":"89","B label":"12","C label":"34"}
-      , {"A label":"56","B label":"78","C label":"90"}
-      ]
-
-  var regexStream = new RegexStream(parser)
-  util.pump(dataStream, regexStream)
-  util.pump(regexStream, outStream)
-
-  outStream.on('end', function() {
-    fs.readFileSync(outFile).should.eql(expected)
-  })
-  
-}
-
-var timestampRegex = function () {
-  // define the test data and output file
-  var inFile = path.join('test', 'input', 'timestampRegexData.txt')
-    , dataStream = fs.createReadStream(inFile, {encoding:'utf8'})
-    , outFile = path.join('test', 'output', 'timestampRegexOutput.txt')
+  var inFile = path.join('test', 'input', 'timestampReplayData.txt')
+    //, dataStream = fs.createReadStream(inFile, {encoding:'utf8'})
+    , outFile = path.join('test', 'output', 'timestampReplayOutput.txt')
     , outStream = fs.createWriteStream(outFile, {encoding:'utf8'})
     , timeFormatter = "YYYY-MM-DD HH-MM-SS-Z"
-    , parser = {
-        "regex": "^([\\S\\s]+): ([\\S\\s]+)"
-      , "labels": ["timestamp", "line"]
-      , "fields": {
-          "timestamp": {"regex": timeFormatter, "type": "moment"}
-        }
+    , opts = {
+        "relativeTime" : false ,
+        "startTime" : 0 ,
+        "endTime" : moment('2013/01/01 07:07:07+0000', timeFormatter).valueOf() ,
+        "timestampName" : "timestamp", 
+        "timestampType" : "moment" ,
+        "stringifyOutput" : true
       }
+/*
     , expected = [
         { timestamp: moment('2012/07/25 10:00:00+0000', timeFormatter).valueOf(), line: 'First line' }
       , { timestamp: moment('2012/07/25 14:14:14+0000', timeFormatter).valueOf(), line: 'Second line' }
       , { timestamp: moment('2012/07/26 07:00:00+0000', timeFormatter).valueOf(), line: 'Third line' }
       , { timestamp: moment('2012/07/26 07:07:07+0000', timeFormatter).valueOf(), line: 'Fourth line' }
+      ]*/
+    , expected = [
+        { timestamp: '2012/07/25 10:00:00+0000', data: 'First line' }
+      , { timestamp: '2012/07/25 14:14:14+0000', data: 'Second line' }
+      , { timestamp: '2012/07/26 07:00:00+0000', data: 'Third line' }
+      , { timestamp: '2012/07/26 07:07:07+0000', data: 'Fourth line' }
       ]
 
-  var regexStream = new RegexStream(parser)
-  util.pump(dataStream, regexStream)
-  util.pump(regexStream, outStream)
+  var replayStream = new ReplayStream(opts)
 
-  outStream.on('end', function() {
-    fs.readFileSync(outFile).should.eql(expected)
+  //util.pump(dataStream, replayStream)
+  //util.pump(replayStream, outStream) //deprecated apparently
+  replayStream.pipe(outStream)
+
+  fs.readFile(inFile, function (err, data) {
+    if (err) throw err
+    data = JSON.parse(data)
+
+    for(var i=0; i< data.length; i++){
+      if(data[i] !== ""){
+        replayStream.write(JSON.stringify(data[i]))
+      }
+    }
+
+    setTimeout(function () {
+        replayStream.end()
+        outStream.end()
+      }, 500)
+  })
+
+  outStream.on('close', function() {
+    fs.readFile(outFile, function (err, data) {
+      if (err) throw err
+      //do a little cleanup of the data - this is fine, it's not really meant to output in that way anyway
+      data = ''+data
+      data = data.split('}{').join('},{')
+      data = '[' + data + ']'
+      console.log(data)
+      JSON.parse(data).should.eql(expected)
+      done()
+    })
   })
     
 }
