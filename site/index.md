@@ -1,6 +1,6 @@
 ---
 layout: default
-title: regex-stream
+title: replay-stream
 ---
 
 [![Build Status](https://travis-ci.org/ornl-visual-analytics/regex-stream.png?branch=master)](https://travis-ci.org/ornl-visual-analytics/regex-stream)

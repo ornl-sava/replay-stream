@@ -1,6 +1,6 @@
 ---
 layout: default
-title: regex-stream tests
+title: replay-stream tests
 ---
 
 PAUSE STREAM PAUSING
@@ -10,10 +10,9 @@ PAUSE STREAM RESUMING
      - [# writable stream-spec](#stream-specification-tests--writable-stream-spec)
      - [# readable stream-spec](#stream-specification-tests--readable-stream-spec)
      - [# through stream-spec](#stream-specification-tests--through-stream-spec)
-   - [regex stream Tests](#regex-stream-tests)
-     - [# simple stream test](#regex-stream-tests--simple-stream-test)
-     - [# simple parse test](#regex-stream-tests--simple-parse-test)
-     - [# timestamp parse test](#regex-stream-tests--timestamp-parse-test)
+   - [replay stream Tests](#replay-stream-tests)
+     - [# simple stream test](#replay-stream-tests--simple-stream-test)
+     - [# simple timestamp test](#replay-stream-tests--simple-timestamp-test)
 <a name="" />
  
 <a name="stream-specification-tests" />
@@ -23,7 +22,7 @@ PAUSE STREAM RESUMING
 should pass stream-spec validation for writable.
 
 ```js
-writableStreamSpec(new RegexStream())
+writableStreamSpec(new ReplayStream())
 ```
 
 <a name="stream-specification-tests--readable-stream-spec" />
@@ -31,7 +30,7 @@ writableStreamSpec(new RegexStream())
 should pass stream-spec validation for readable.
 
 ```js
-readableStreamSpec(new RegexStream())
+readableStreamSpec(new ReplayStream())
 ```
 
 <a name="stream-specification-tests--through-stream-spec" />
@@ -39,12 +38,12 @@ readableStreamSpec(new RegexStream())
 should pass stream-spec validation for through.
 
 ```js
-readableStreamSpec(new RegexStream())
+readableStreamSpec(new ReplayStream())
 ```
 
-<a name="regex-stream-tests" />
-# regex stream Tests
-<a name="regex-stream-tests--simple-stream-test" />
+<a name="replay-stream-tests" />
+# replay stream Tests
+<a name="replay-stream-tests--simple-stream-test" />
 ## # simple stream test
 should pass pause-unpause stream tests.
 
@@ -52,19 +51,11 @@ should pass pause-unpause stream tests.
 pauseUnpauseStream()
 ```
 
-<a name="regex-stream-tests--simple-parse-test" />
-## # simple parse test
-should pass simple regular expression parsing.
+<a name="replay-stream-tests--simple-timestamp-test" />
+## # simple timestamp test
+should pass simple timestamp reading.
 
 ```js
-simpleRegex()
-```
-
-<a name="regex-stream-tests--timestamp-parse-test" />
-## # timestamp parse test
-should pass moment timestamp parsing.
-
-```js
-timestampRegex()
+simpleReplay(done)
 ```
 

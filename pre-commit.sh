@@ -8,11 +8,11 @@
 # package.json should have a scripts block that defines how to run tests and build docs:
 #   "scripts" : {
 #      "test": "./node_modules/mocha/bin/mocha -R spec"
-#    , "docs": "./node_modules/markdox/bin/markdox -o doc/regex-stream.md regex-stream.js"
+#    , "docs": "./node_modules/markdox/bin/markdox -o doc/replay-stream.md replay-stream.js"
 #    }
 
 
-FILE=regex-stream.js
+FILE=replay-stream.js
 JSHINT=`which jshint`
 JSHINT_EXISTS=$?
 NPM=/usr/local/bin/npm
@@ -81,7 +81,7 @@ TESTS_SRC=doc/tests.md
 TESTS_DST=site/tests.md
 echo '---
 layout: default
-title: regex-stream tests
+title: replay-stream tests
 ---
 ' > ${TESTS_DST}
 cat ${TESTS_SRC} >> ${TESTS_DST}
@@ -91,7 +91,7 @@ API_SRC=doc/api.md
 API_DST=site/api.md
 echo '---
 layout: default
-title: regex-stream API
+title: replay-stream API
 ---
 ' > ${API_DST}
 cat ${API_SRC} >> ${API_DST}
@@ -103,7 +103,7 @@ git add ${API_DST}
 INDEX_FILE=site/index.md
 echo '---
 layout: default
-title: regex-stream
+title: replay-stream
 ---
 ' > ${INDEX_FILE}
 cat README.md >> ${INDEX_FILE}

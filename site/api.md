@@ -1,11 +1,11 @@
 ---
 layout: default
-title: regex-stream API
+title: replay-stream API
 ---
 
 
 
-<!-- Start regex-stream.js -->
+<!-- Start replay-stream.js -->
 
 shint node:true, indent:2, globalstrict: true, asi: true, laxcomma: true, laxbreak: true
 
@@ -15,18 +15,18 @@ This module will transform a string into stringified JSON object
 It will input a stream, parse it according to a regular expression and output to a stream.
 
 # Example:
-   var RegexStream = require('regex-stream')
-   var regexStream = new RegexStream(parserConfig)
-   util.pump(inputStream, regexStream)
-   util.pump(regexStream, outputStream)
+   var ReplayStream = require('replay-stream')
+   var replayStream = new ReplayStream(parserConfig)
+   util.pump(inputStream, replayStream)
+   util.pump(replayStream, outputStream)
 
-## RegexStream(regexConfig)
+## ReplayStream(replayConfig)
 
 Constructor is a single global object
 
 ### Params: 
 
-* **Object** *regexConfig* The regular expression configuration. Available options: 
+* **Object** *replayConfig* The regular expression configuration. Available options: 
 
 ## write(data)
 
@@ -56,19 +56,6 @@ Resume stream after a pause, emitting a drain
 
 Destroy the stream. Stream is no longer writable nor readable.
 
-## parseString(data)
-
-Use the configured regular expression to parse the data
-If data cannot be properly parsed, an error is emitted
-
-### Params: 
-
-* **String** *data* The string to parse with the regex passed to constructor
-
-### Return:
-
-* **Object** result The parsed object if successful, or empty object if not
-
 ## parseMoment(string, formatter)
 
 Uses [Moment.js](http://momentjs.com/) to parse a string into a timestamp
@@ -84,5 +71,5 @@ If data cannot be properly parsed, an error is emitted
 
 * **Number** timestamp The number of *milliseconds* since the Unix Epoch
 
-<!-- End regex-stream.js -->
+<!-- End replay-stream.js -->
 
