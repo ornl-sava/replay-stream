@@ -30,12 +30,13 @@ var debug = false;
  * Constructor is a single global object
  *
  * @param {Object} replayConfig The regular expression configuration. Available options: 
- *  replayConfig.relativeTime        //if true, will output the results in 'relative time', meaning with a delay of the entry's timestamp minus the startTime argument below.
- *  replayConfig.startTime           //will ignore entries before this time.  specified in seconds, unix-style
- *  replayConfig.endTime             //will ignore entries after this time.  specified in seconds, unix-style
+ *  replayConfig.relativeTime      //if true, will output the results in 'relative time', meaning with a delay of the entry's timestamp minus the startTime argument below.
+ *  replayConfig.startTime         //will ignore entries before this time.  specified in seconds, unix-style
+ *  replayConfig.endTime           //will ignore entries after this time.  specified in seconds, unix-style
  *  replayConfig.timestampName     //the name of the field that contains the timestamp.  Default is "timestamp"
  *  replayConfig.timestampType     //the type of timestamp, currently only "moment" is defined.
- *  replayConfig.stringifyOutput     //will make sure that output is stringified if needed.
+ *  replayConfig.timestampFormat   //the format of the timesatmp, if needed.  eg. "YYYY-MM-DD HH-MM-SS-Z"
+ *  replayConfig.stringifyOutput   //will make sure that output is stringified if needed.
  *
  */
 function ReplayStream(replayConfig) {
@@ -104,7 +105,7 @@ util.inherits(ReplayStream, Stream)
  *
  */
 ReplayStream.prototype.write = function (data) {
-  if(debug){ console.log('trying to write data of ' + data) }
+  if (debug) { console.log('trying to write data of ' + data) }
 
   // cannot write to a stream after it has ended
   if (this._ended)
@@ -121,46 +122,46 @@ ReplayStream.prototype.write = function (data) {
   var self = this
   var emitDelayed = function (msg) {
     var delay = msg.timestamp - (self.startTime * 1000)
-    //if(debug){ console.log('delay of ' + delay) }
+    //if (debug) { console.log('delay of ' + delay) }
     setTimeout(function () {
         if (! self._ended) {
-          //if(debug){ console.log('emitting') }
-          if(this._stringifyOutput && typeof msg !== "string"){
+          //if (debug) { console.log('emitting') }
+          if (this._stringifyOutput && typeof msg !== "string") {
             result = JSON.stringify(msg)
           }
-          if(debug){ console.log('b: result is ' + result) }
+          if (debug) { console.log('b: result is ' + result) }
           self.emit('data', msg)
         }
         else {
-          if(debug){ console.log('not emitting, ended already') }
+          if (debug) { console.log('not emitting, ended already') }
         }
       }, delay)
   }
 
   try {
     var result = data //TODO probably more general way to handle this
-    if( typeof data === "string"){
+    if (typeof data === "string") {
       result = JSON.parse(data)
     }
     //if(debug) console.log( 'got a result of: ' + JSON.stringify(result))
     if (! this._hasTimestamp) { //TODO probably will always have timestamp, not sure this is useful to handle. Maybe throw a warning? or throw one above?
-      if(this._stringifyOutput && typeof result !== "string"){
+      if (this._stringifyOutput && typeof result !== "string") {
         result = JSON.stringify(result)
       }
-      if(debug){ console.log('c: result is ' + result) }
+      if (debug) { console.log('c: result is ' + result) }
       this.emit('data', result)
     }
     else {
-      if ( this._startTime < (this.parseMoment(result.timestamp, this._timestampFormat) / 1000) && 
-            (this.parseMoment(result.timestamp, this._timestampFormat) / 1000) < this._endTime ){
+      if (this._startTime < (this.parseMoment(result.timestamp, this._timestampFormat) / 1000) && 
+            (this.parseMoment(result.timestamp, this._timestampFormat) / 1000) < this._endTime) {
         if (this._relativeTime) {
           emitDelayed(result)
         }
         else {
-          if(this._stringifyOutput && typeof result !== "string"){
+          if (this._stringifyOutput && typeof result !== "string") {
             result = JSON.stringify(result)
           }
-          if(debug){ console.log('a: result is ' + result) }
+          if (debug) { console.log('a: result is ' + result) }
           process.nextTick(function () {
             self.emit('data', result)
           })
@@ -169,7 +170,7 @@ ReplayStream.prototype.write = function (data) {
     }
   }
   catch (err) {
-    if(debug) console.log('some error emitted for some reason: ' + err)
+    if (debug) { console.log('some error emitted for some reason: ' + err) }
     var error = new Error('ReplayStream: parsing error - ' + err)
     this.emit('error', error)
   }

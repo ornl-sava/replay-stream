@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # A git pre-commit hook for node.js projects to 
 #   * lint JavaScript files with [jshint](https://github.com/jshint/jshint/)

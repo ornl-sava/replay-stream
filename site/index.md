@@ -3,60 +3,50 @@ layout: default
 title: replay-stream
 ---
 
-[![Build Status](https://travis-ci.org/ornl-visual-analytics/regex-stream.png?branch=master)](https://travis-ci.org/ornl-visual-analytics/regex-stream)
+[![Build Status](https://travis-ci.org/ornl-visual-analytics/replay-stream.png?branch=master)](https://travis-ci.org/ornl-visual-analytics/replay-stream)
 
 
-# Parse strings into JSON using regular expressions
+# filter/emit/shift JSON objects based on their timestamp
 
-This module will take in a string as a [stream](http://nodejs.org/docs/latest/api/stream.html), parse it using a [regular expression](https://developer.mozilla.org/en/JavaScript/Guide/Regular_Expressions), and output it to a JSON string as a stream.
+This module will take in a [stream](http://nodejs.org/docs/latest/api/stream.html) of JSON strings, read their specified timestamp field, and output according to the given criteria.  This can include restricting output to a certain time range, and/or outputting the items with some delay based on their timestamp.
+
+This was created to help when replaying log events or similar recorded events, for use with the [log-tool](https://github.com/ornl-visual-analytics/log-tool) and [replay-stream](https://github.com/ornl-visual-analytics/replay-stream) projects.
 
 
 ## Install
 
-npm install regex-stream
+npm install replay-stream
 
 
-## Parse configuration
+## Configuration and Usage
 
-A parser is defined by a regular expression (`regex`) and an array of `labels`. You may optionally include a `delimiter` (default is `\n`) and a `timestamp` parser, which will use the [moment.js](http://momentjs.com/) library to parse a timestamp into a number representing the [milliseconds since the Unix Epoch](http://momentjs.com/docs/#/parsing/milliseconds-since-the-unix-epoch/), allowing greater precision than unix timestamp. See [the moment formatter docs](http://momentjs.com/docs/#/parsing/string-format/) for more.
+The following is an example of available options:
 
-    parser = {
-        "regex": "^([\\S\\s]+): ([\\S]\\s+)$"
-      , "labels": ["Time label", "Another label"]
-      , "delimiter": "\r\n|\n"
-      , "fields": {
-          "Time label": {"regex": "YYYY/MM/DD HH:MM:SS", "type": "moment"}
-        }
-    }
+  opts = {
+    "relativeTime" : false ,
+    "startTime" : 0 ,
+    "endTime" : moment('2013/01/01 07:07:07+0000', timeFormatter).valueOf() ,
+    "timestampName" : "timestamp", 
+    "timestampType" : "moment" ,
+    "timestampFormat" : "YYYY-MM-DD HH-MM-SS-Z" ,
+    "stringifyOutput" : true
+  }
 
-Note, the moment parser ignores non-alphanumeric characters, see the [moment documentation](http://momentjs.com/docs/#/parsing/string-format/) for more about parsing dates.
+These are defined as:
+/*
+ *  replayConfig.relativeTime      //if true, will output the results in 'relative time', meaning with a delay of the entry's timestamp minus the startTime argument below.
+ *  replayConfig.startTime         //will ignore entries before this time.  specified in seconds, unix-style
+ *  replayConfig.endTime           //will ignore entries after this time.  specified in seconds, unix-style
+ *  replayConfig.timestampName     //the name of the field that contains the timestamp.  Default is "timestamp"
+ *  replayConfig.timestampType     //the type of timestamp, currently only "moment" is defined.
+ *  replayConfig.timestampFormat   //the format of the timesatmp, if needed.  eg. "YYYY-MM-DD HH-MM-SS-Z"
+ *  replayConfig.stringifyOutput   //will make sure that output is stringified if needed.
+ */
 
-
-## Usage
-
-The parser will output JSON for each line (defined by a `delimiter`) in the file, where the keys for each associated value is defined by `labels` that are in the same order as the [parenthesized matches](https://developer.mozilla.org/en/JavaScript/Guide/Regular_Expressions#Using_Parenthesized_Substring_Matches). Lines that do not match the pattern will [emit](http://nodejs.org/docs/latest/api/events.html#events_class_events_eventemitter) (not throw) an error, so you can safely ignore it or do something when it happens.
-
-This example just splits up the lines
-
-    var util = require('util')
-      , RegexStream = require('regex-stream')
-      , input = require('fs').createReadStream('./data.txt', {encoding:'utf-8'})
-      , parser = {
-          "regex": "^([\\S]+) ([\\S]+) ([\\S]+)"
-        , "labels": ["A label", "B label", "C label"]
-      }
-      , regexStream = new RegexStream(parser)
-
-    // pipe data from input file to the regexStream parser to stdout
-    util.pump(input, regexStream)
-    util.pump(regexStream, process.stdout)
-
-
-See the `examples` directory for more examples.
 
 ## Development
 
-If you are going to do development, you may want to use the [git pre-commit hook](http://git-scm.com/book/en/Customizing-Git-Git-Hooks), which will check the `regex-stream.js` file using [jshint](https://github.com/jshint/jshint) script (if you have it installed) and run the [mocha](visionmedia.github.com/mocha/) tests (mocha is in the git repo). If either of these fail, the commit wont work. To use the hook, from project directory, run:
+If you are going to do development, you may want to use the [git pre-commit hook](http://git-scm.com/book/en/Customizing-Git-Git-Hooks), which will check the `replay-stream.js` file using [jshint](https://github.com/jshint/jshint) script (if you have it installed) and run the [mocha](visionmedia.github.com/mocha/) tests (mocha is in the git repo). If either of these fail, the commit wont work. To use the hook, from project directory, run:
 
     ln -s ../../pre-commit.sh .git/hooks/pre-commit
 
@@ -65,12 +55,12 @@ If you are going to do development, you may want to use the [git pre-commit hook
 
 Docs can be built with [markdox](http://cbou.github.com/markdox/), which creates an api document in `docs`:
 
-    ./node_modules/markdox/bin/markdox -o doc/api.md regex-stream.js
+    ./node_modules/markdox/bin/markdox -o doc/api.md replay-stream.js
     
 
 # License
 
-regex-stream is freely distributable under the terms of the MIT License.
+replay-stream is freely distributable under the terms of the MIT License.
 
 Copyright (c) John R. Goodall (the "Original Author")
 
