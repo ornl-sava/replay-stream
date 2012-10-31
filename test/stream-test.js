@@ -59,7 +59,6 @@ var pauseUnpauseStream = function () {
 var simpleReplay = function (done) {
   // define the test data and output file
   var inFile = path.join('test', 'input', 'timestampReplayData.txt')
-    //, dataStream = fs.createReadStream(inFile, {encoding:'utf8'})
     , outFile = path.join('test', 'output', 'timestampReplayOutput.txt')
     , outStream = fs.createWriteStream(outFile, {encoding:'utf8'})
     , timeFormatter = "YYYY-MM-DD HH-MM-SS-Z"
@@ -69,8 +68,10 @@ var simpleReplay = function (done) {
         "endTime" : moment('2013/01/01 07:07:07+0000', timeFormatter).valueOf() ,
         "timestampName" : "timestamp", 
         "timestampType" : "moment" ,
+        "timestampFormat" : timeFormatter ,
         "stringifyOutput" : true
       }
+//TODO use this for testing different input/output format combinations
 /*
     , expected = [
         { timestamp: moment('2012/07/25 10:00:00+0000', timeFormatter).valueOf(), line: 'First line' }
@@ -87,8 +88,6 @@ var simpleReplay = function (done) {
 
   var replayStream = new ReplayStream(opts)
 
-  //util.pump(dataStream, replayStream)
-  //util.pump(replayStream, outStream) //deprecated apparently
   replayStream.pipe(outStream)
 
   fs.readFile(inFile, function (err, data) {
@@ -110,11 +109,11 @@ var simpleReplay = function (done) {
   outStream.on('close', function() {
     fs.readFile(outFile, function (err, data) {
       if (err) throw err
-      //do a little cleanup of the data - this is fine, it's not really meant to output in that way anyway
+      //do a little cleanup of the data - this is fine, just putting it back into an array since we sent items individually above.
       data = ''+data
       data = data.split('}{').join('},{')
       data = '[' + data + ']'
-      console.log(data)
+      //console.log(data)
       JSON.parse(data).should.eql(expected)
       done()
     })

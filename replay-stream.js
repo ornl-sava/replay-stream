@@ -22,6 +22,7 @@ var Stream = require('stream').Stream
   , util = require('util')
   , moment = require('moment')
 
+var debug = false;
 
 //TODO input/output as either moment or as epoc time
 /**
@@ -81,6 +82,7 @@ function ReplayStream(replayConfig) {
     this._timestampName = replayConfig.timestampName
     this._timestampType = replayConfig.timestampType
     this._stringifyOutput = replayConfig.stringifyOutput
+    this._timestampFormat = replayConfig.timestampFormat
   }
 
   Stream.call(this)
@@ -102,7 +104,7 @@ util.inherits(ReplayStream, Stream)
  *
  */
 ReplayStream.prototype.write = function (data) {
-  console.log('trying to write data of ' + data)
+  if(debug){ console.log('trying to write data of ' + data) }
 
   // cannot write to a stream after it has ended
   if (this._ended)
@@ -119,18 +121,18 @@ ReplayStream.prototype.write = function (data) {
   var self = this
   var emitDelayed = function (msg) {
     var delay = msg.timestamp - (self.startTime * 1000)
-    //console.log('delay of ' + delay)
+    //if(debug){ console.log('delay of ' + delay) }
     setTimeout(function () {
         if (! self._ended) {
-          //console.log('emitting')
+          //if(debug){ console.log('emitting') }
           if(this._stringifyOutput && typeof msg !== "string"){
             result = JSON.stringify(msg)
           }
-          console.log('b: result is ' + result)
+          if(debug){ console.log('b: result is ' + result) }
           self.emit('data', msg)
         }
         else {
-          console.log('not emitting, ended already')
+          if(debug){ console.log('not emitting, ended already') }
         }
       }, delay)
   }
@@ -140,16 +142,17 @@ ReplayStream.prototype.write = function (data) {
     if( typeof data === "string"){
       result = JSON.parse(data)
     }
-    //console.log( 'got a result of: ' + JSON.stringify(result))
-    if (! this._hasTimestamp) { //TODO probably will always have timestamp, not sure this is even useful to handle.
+    //if(debug) console.log( 'got a result of: ' + JSON.stringify(result))
+    if (! this._hasTimestamp) { //TODO probably will always have timestamp, not sure this is useful to handle. Maybe throw a warning? or throw one above?
       if(this._stringifyOutput && typeof result !== "string"){
         result = JSON.stringify(result)
       }
-      console.log('c: result is ' + result)
+      if(debug){ console.log('c: result is ' + result) }
       this.emit('data', result)
     }
     else {
-      if (true || (this._startTime < (this.parseMoment(result.timestamp) / 1000) && (this.parseMoment(result.timestamp) / 1000) < this._endTime) ){
+      if ( this._startTime < (this.parseMoment(result.timestamp, this._timestampFormat) / 1000) && 
+            (this.parseMoment(result.timestamp, this._timestampFormat) / 1000) < this._endTime ){
         if (this._relativeTime) {
           emitDelayed(result)
         }
@@ -157,7 +160,7 @@ ReplayStream.prototype.write = function (data) {
           if(this._stringifyOutput && typeof result !== "string"){
             result = JSON.stringify(result)
           }
-          console.log('a: result is ' + result)
+          if(debug){ console.log('a: result is ' + result) }
           process.nextTick(function () {
             self.emit('data', result)
           })
@@ -166,7 +169,7 @@ ReplayStream.prototype.write = function (data) {
     }
   }
   catch (err) {
-    console.log('some error emitted for some reason: ' + err)
+    if(debug) console.log('some error emitted for some reason: ' + err)
     var error = new Error('ReplayStream: parsing error - ' + err)
     this.emit('error', error)
   }
