@@ -45,6 +45,12 @@ describe('replay stream Tests', function() {
     })
   })
 
+  describe('# simple timestamp test', function(){
+    it('should pass simple timestamp reading', function(done){
+      simpleReplayWithConversion(done)
+    })
+  })
+
 }) 
 
 //TODO - test invalid code, blank lines at end, etc.
@@ -61,24 +67,16 @@ var simpleReplay = function (done) {
   var inFile = path.join('test', 'input', 'timestampReplayData.txt')
     , outFile = path.join('test', 'output', 'timestampReplayOutput.txt')
     , outStream = fs.createWriteStream(outFile, {encoding:'utf8'})
-    , timeFormatter = "YYYY-MM-DD HH-MM-SS-Z"
+    , timeFormatter = "YYYY-MM-DD HH-mm-ss-Z"
     , opts = {
         "relativeTime" : false ,
         "startTime" : 0 ,
-        "endTime" : moment('2013/01/01 07:07:07+0000', timeFormatter).valueOf() ,
+        "endTime" : moment('2020/01/01 07:07:07+0000', timeFormatter).valueOf() / 1000 ,
         "timestampName" : "timestamp", 
         "timestampType" : "moment" ,
         "timestampFormat" : timeFormatter ,
         "stringifyOutput" : true
       }
-//TODO use this for testing different input/output format combinations
-/*
-    , expected = [
-        { timestamp: moment('2012/07/25 10:00:00+0000', timeFormatter).valueOf(), line: 'First line' }
-      , { timestamp: moment('2012/07/25 14:14:14+0000', timeFormatter).valueOf(), line: 'Second line' }
-      , { timestamp: moment('2012/07/26 07:00:00+0000', timeFormatter).valueOf(), line: 'Third line' }
-      , { timestamp: moment('2012/07/26 07:07:07+0000', timeFormatter).valueOf(), line: 'Fourth line' }
-      ]*/
     , expected = [
         { timestamp: '2012/07/25 10:00:00+0000', data: 'First line' }
       , { timestamp: '2012/07/25 14:14:14+0000', data: 'Second line' }
@@ -109,7 +107,7 @@ var simpleReplay = function (done) {
   outStream.on('close', function() {
     fs.readFile(outFile, function (err, data) {
       if (err) throw err
-      //do a little cleanup of the data - this is fine, just putting it back into an array since we sent items individually above.
+      //do a little cleanup of the data - this is fine, just putting it back into an array since we output items individually above.
       data = ''+data
       data = data.split('}{').join('},{')
       data = '[' + data + ']'
@@ -118,5 +116,61 @@ var simpleReplay = function (done) {
       done()
     })
   })
-    
+}
+
+var simpleReplayWithConversion = function (done) {
+  // define the test data and output file
+  var inFile = path.join('test', 'input', 'timestampReplayData.txt')
+    , outFile = path.join('test', 'output', 'timestampReplayOutput.txt')
+    , outStream = fs.createWriteStream(outFile, {encoding:'utf8'})
+    , timeFormatter = "YYYY-MM-DD HH-mm-ss-Z"
+    , opts = {
+        "relativeTime" : false ,
+        "startTime" : 1343210300 ,
+        "endTime" : 1343286500 ,
+        "timestampName" : "timestamp", 
+        "timestampType" : "moment" ,
+        "timestampFormat" : timeFormatter ,
+        "timestampOutputType" : "epoc" ,
+        "stringifyOutput" : true
+      }
+    , expected = [
+        { timestamp: (moment('2012/07/25 10:00:00+0000', timeFormatter).valueOf()/1000), data: 'First line' }
+      , { timestamp: (moment('2012/07/25 14:14:14+0000', timeFormatter).valueOf()/1000), data: 'Second line' }
+      , { timestamp: (moment('2012/07/26 07:00:00+0000', timeFormatter).valueOf()/1000), data: 'Third line' }
+      , { timestamp: (moment('2012/07/26 07:07:07+0000', timeFormatter).valueOf()/1000), data: 'Fourth line' }
+      ]
+
+  var replayStream = new ReplayStream(opts)
+
+  replayStream.pipe(outStream)
+
+  fs.readFile(inFile, function (err, data) {
+    if (err) throw err
+    data = JSON.parse(data)
+
+    for(var i=0; i< data.length; i++){
+      if(data[i] !== ""){
+        replayStream.write(JSON.stringify(data[i]))
+      }
+    }
+
+    setTimeout(function () {
+        replayStream.end()
+        outStream.end()
+      }, 500)
+  })
+
+  outStream.on('close', function() {
+    fs.readFile(outFile, function (err, data) {
+      if (err) throw err
+      //do a little cleanup of the data - this is fine, just putting it back into an array since we output items individually above.
+      data = ''+data
+      data = data.split('}{').join('},{')
+      data = '[' + data + ']'
+      //console.log(data)
+      JSON.parse(data).should.eql(expected)
+      done()
+    })
+  })
 }

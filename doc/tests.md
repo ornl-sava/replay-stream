@@ -54,3 +54,11 @@ should pass simple timestamp reading.
 simpleReplay(done)
 ```
 
+<a name="replay-stream-tests--simple-timestamp-test" />
+## # simple timestamp test
+should pass simple timestamp reading.
+
+```js
+simpleReplayWithConversion(done)
+```
+

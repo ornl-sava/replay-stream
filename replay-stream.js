@@ -24,7 +24,6 @@ var Stream = require('stream').Stream
 
 var debug = false;
 
-//TODO input/output as either moment or as epoc time
 /**
  *
  * Constructor is a single global object
@@ -34,8 +33,9 @@ var debug = false;
  *  replayConfig.startTime         //will ignore entries before this time.  specified in seconds, unix-style
  *  replayConfig.endTime           //will ignore entries after this time.  specified in seconds, unix-style
  *  replayConfig.timestampName     //the name of the field that contains the timestamp.  Default is "timestamp"
- *  replayConfig.timestampType     //the type of timestamp, currently only "moment" is defined.
+ *  replayConfig.timestampType     //the type of timestamp - currently "moment", "epoc", and "epoc-ms" are defined.
  *  replayConfig.timestampFormat   //the format of the timesatmp, if needed.  eg. "YYYY-MM-DD HH-MM-SS-Z"
+ *  replayConfig.timestampOutputType   //If specified, the timestamp will be output in this format.  takes the same options as timestampType above.
  *  replayConfig.stringifyOutput   //will make sure that output is stringified if needed.
  *
  */
@@ -56,7 +56,7 @@ function ReplayStream(replayConfig) {
   this._hasTimestamp = false
   if (replayConfig && replayConfig.timestampName)
     this._hasTimestamp = true
-  //TODO if false, emit some warning/error
+  //TODO if false, emit some warning/error ??
 
   this.startTime = 0
   if (replayConfig && replayConfig.startTime) 
@@ -80,10 +80,16 @@ function ReplayStream(replayConfig) {
     this._relativeTime = replayConfig.relativeTime
     this._startTime = replayConfig.startTime
     this._endTime = replayConfig.endTime
-    this._timestampName = replayConfig.timestampName
+
+    if (replayConfig.timestampName)
+      this._timestampName = replayConfig.timestampName
+    else
+      this._timestampName = "timestamp"
+
     this._timestampType = replayConfig.timestampType
     this._stringifyOutput = replayConfig.stringifyOutput
     this._timestampFormat = replayConfig.timestampFormat
+    this._timestampOutputType = replayConfig.timestampOutputType
   }
 
   Stream.call(this)
@@ -126,11 +132,8 @@ ReplayStream.prototype.write = function (data) {
     setTimeout(function () {
         if (! self._ended) {
           //if (debug) { console.log('emitting') }
-          if (this._stringifyOutput && typeof msg !== "string") {
-            result = JSON.stringify(msg)
-          }
           if (debug) { console.log('b: result is ' + result) }
-          self.emit('data', msg)
+          self.emit('data', this.formatOutput(msg))
         }
         else {
           if (debug) { console.log('not emitting, ended already') }
@@ -139,34 +142,29 @@ ReplayStream.prototype.write = function (data) {
   }
 
   try {
-    var result = data //TODO probably more general way to handle this
-    if (typeof data === "string") {
+    var result = data 
+    if (typeof data === "string") { //TODO probably more general way to handle this?
       result = JSON.parse(data)
     }
     //if(debug) console.log( 'got a result of: ' + JSON.stringify(result))
-    if (! this._hasTimestamp) { //TODO probably will always have timestamp, not sure this is useful to handle. Maybe throw a warning? or throw one above?
-      if (this._stringifyOutput && typeof result !== "string") {
-        result = JSON.stringify(result)
-      }
-      if (debug) { console.log('c: result is ' + result) }
-      this.emit('data', result)
+    if (! this._hasTimestamp || ! result[this._timestampName]) { //no timestamp specified or none found - bail out early
+      if (debug) { console.log('no timestamp specified or none found: result is ' + result) }
+      this.emit('data', this.formatOutput(result))
     }
     else {
-      if (this._startTime < (this.parseMoment(result.timestamp, this._timestampFormat) / 1000) && 
-            (this.parseMoment(result.timestamp, this._timestampFormat) / 1000) < this._endTime) {
+      if (this._startTime < this.getTimestamp(result) && this.getTimestamp(result) < this._endTime) {
         if (this._relativeTime) {
           emitDelayed(result)
         }
         else {
-          if (this._stringifyOutput && typeof result !== "string") {
-            result = JSON.stringify(result)
-          }
+          result = this.formatOutput(result)
           if (debug) { console.log('a: result is ' + result) }
           process.nextTick(function () {
             self.emit('data', result)
           })
         }
       }
+      else if (debug) console.log("item was out of time range: " + result)
     }
   }
   catch (err) {
@@ -282,4 +280,66 @@ ReplayStream.prototype.parseMoment = function (string, formatter) {
   }
 
   return false
+}
+
+/*
+ *
+ * Will return the timestamp of this item, converted to epoc time (seconds)
+ * 
+ * @param {String} item The item to read this timestamp from
+ * @api private
+ *
+ */
+ReplayStream.prototype.getTimestamp = function (item) {
+  if (debug) console.log('getTimestamp: ' + this._timestampName + ' ' + item[this._timestampName] + ' item is ' + JSON.stringify(item))
+  var res
+  if (this._timestampName && item[this._timestampName]) {
+    if (this._timestampType === "moment")  
+      res = (this.parseMoment(item[this._timestampName], this._timestampFormat) / 1000)
+    else if (this._timestampType === "epoc")  
+      res = item[this._timestampName]
+    else if (this._timestampType === "epoc-ms")  
+      res = item[this._timestampName] / 1000
+    //else something is wrong //TODO
+  }//else something is wrong //TODO
+  return res
+}
+
+/*
+ *
+ * Uses [Moment.js](http://momentjs.com/) to parse a string into a timestamp
+ * If data cannot be properly parsed, an error is emitted
+ * 
+ * @param {String} item The item to (re)format before output
+ * @api private
+ *
+ */
+ReplayStream.prototype.formatOutput = function (item) {
+  var ts
+  if (debug) console.log('formatOutput: ' + this._timestampName + ' ' + item[this._timestampName])
+  if (this._timestampName && item[this._timestampName]) {
+    if (this._timestampOutputType && this._timestampOutputType !== this._timestampType) {
+      if (this._timestampOutputType === "epoc") {
+        ts = this.getTimestamp(item)
+        item[this._timestampName] = ts
+      }
+      else if (this._timestampOutputType === "epoc-ms") {
+        ts = this.getTimestamp(item) * 1000
+        item[this._timestampName] = ts
+      }
+      else if (this._timestampOutputType === "moment") {
+        if (this._timestampType === "epoc")
+          ts = moment.unix(item[this._timestampName])
+        else if (this._timestampType === "epoc-ms")
+          ts = moment(item[this._timestampName])
+        //else something is wrong //TODO
+        item[this._timestampName] = ts.format(this._timestampType)
+      }//else something is wrong //TODO
+    }
+  }
+
+  if (this._stringifyOutput && typeof item !== "string") {
+    item = JSON.stringify(item)
+  }
+  return item
 }

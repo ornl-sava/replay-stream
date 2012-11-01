@@ -66,5 +66,22 @@ If data cannot be properly parsed, an error is emitted
 
 * **Number** timestamp The number of *milliseconds* since the Unix Epoch
 
+## getTimestamp(item)
+
+Will return the timestamp of this item, converted to epoc time (seconds)
+
+### Params: 
+
+* **String** *item* The item to read this timestamp from
+
+## formatOutput(item)
+
+Uses [Moment.js](http://momentjs.com/) to parse a string into a timestamp
+If data cannot be properly parsed, an error is emitted
+
+### Params: 
+
+* **String** *item* The item to (re)format before output
+
 <!-- End replay-stream.js -->
 
