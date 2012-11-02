@@ -17,15 +17,15 @@ npm install replay-stream
 
 The following is an example of available options:
 
-  opts = {
-    "relativeTime" : false ,
-    "startTime" : 0 ,
-    "endTime" : moment('2013/01/01 07:07:07+0000', timeFormatter).valueOf() ,
-    "timestampName" : "timestamp", 
-    "timestampType" : "moment" ,
-    "timestampFormat" : "YYYY-MM-DD HH-MM-SS-Z" ,
-    "stringifyOutput" : true
-  }
+    opts = {
+      "relativeTime" : false ,
+      "startTime" : 0 ,
+      "endTime" : moment('2013/01/01 07:07:07+0000', timeFormatter).valueOf() ,
+      "timestampName" : "timestamp", 
+      "timestampType" : "moment" ,
+      "timestampFormat" : "YYYY-MM-DD HH-MM-SS-Z" ,
+      "stringifyOutput" : true
+    }
 
 These are defined as:
 /*
