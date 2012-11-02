@@ -27,16 +27,15 @@ The following is an example of available options:
       "stringifyOutput" : true
     }
 
-These are defined as:
-/*
- *  replayConfig.relativeTime      //if true, will output the results in 'relative time', meaning with a delay of the entry's timestamp minus the startTime argument below.
- *  replayConfig.startTime         //will ignore entries before this time.  specified in seconds, unix-style
- *  replayConfig.endTime           //will ignore entries after this time.  specified in seconds, unix-style
- *  replayConfig.timestampName     //the name of the field that contains the timestamp.  Default is "timestamp"
- *  replayConfig.timestampType     //the type of timestamp, currently only "moment" is defined.
- *  replayConfig.timestampFormat   //the format of the timesatmp, if needed.  eg. "YYYY-MM-DD HH-MM-SS-Z"
- *  replayConfig.stringifyOutput   //will make sure that output is stringified if needed.
- */
+The options are defined as:
+
+ *  `replayConfig.relativeTime`: if true, will output the results in 'relative time', meaning with a delay of the entry's timestamp minus the startTime argument below.
+ *  `replayConfig.startTime`: will ignore entries before this time.  specified in seconds, unix-style
+ *  `replayConfig.endTime`: will ignore entries after this time.  specified in seconds, unix-style
+ *  `replayConfig.timestampName`: the name of the field that contains the timestamp.  Default is "timestamp"
+ *  `replayConfig.timestampType`: the type of timestamp, currently only "moment" is defined.
+ *  `replayConfig.timestampFormat`: the format of the timesatmp, if needed.  eg. "YYYY-MM-DD HH-MM-SS-Z"
+ *  `replayConfig.stringifyOutput`: will make sure that output is stringified if needed.
 
 
 ## Development
