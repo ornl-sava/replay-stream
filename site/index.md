@@ -3,14 +3,14 @@ layout: default
 title: replay-stream
 ---
 
-[![Build Status](https://travis-ci.org/ornl-visual-analytics/replay-stream.png?branch=master)](https://travis-ci.org/ornl-visual-analytics/replay-stream)
+[![Build Status](https://travis-ci.org/ornl-situ/replay-stream.png?branch=master)](https://travis-ci.org/ornl-situ/replay-stream)
 
 
 # filter/emit/shift JSON objects based on their timestamp
 
 This module will take in a [stream](http://nodejs.org/docs/latest/api/stream.html) of JSON strings, read their specified timestamp field, and output according to the given criteria.  This can include restricting output to a certain time range, and/or outputting the items with some delay based on their timestamp.
 
-This was created to help when replaying log events or similar recorded events, for use with the [log-tool](https://github.com/ornl-visual-analytics/log-tool) and [replay-stream](https://github.com/ornl-visual-analytics/replay-stream) projects.
+This was created to help when replaying log events or similar recorded events, for use with the [log-tool](https://github.com/ornl-situ/log-tool) and [replay-stream](https://github.com/ornl-situ/replay-stream) projects.
 
 
 ## Install
