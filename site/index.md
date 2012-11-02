@@ -48,21 +48,21 @@ These are defined as:
 
 If you are going to do development, you may want to use the [git pre-commit hook](http://git-scm.com/book/en/Customizing-Git-Git-Hooks), which will check the `replay-stream.js` file using [jshint](https://github.com/jshint/jshint) script (if you have it installed) and run the [mocha](visionmedia.github.com/mocha/) tests (mocha is in the git repo). If either of these fail, the commit wont work. To use the hook, from project directory, run:
 
-    ln -s ../../pre-commit.sh .git/hooks/pre-commit
+    ln -s ../../scripts/pre-commit.sh .git/hooks/pre-commit
 
 
-## Docs
+## Documentation
 
-Docs can be built with [markdox](http://cbou.github.com/markdox/), which creates an api document in `docs`:
+To build the documentation and prepare the github project pages site, run:
 
-    ./node_modules/markdox/bin/markdox -o doc/api.md replay-stream.js
+    npm run-script docs
     
 
 # License
 
 replay-stream is freely distributable under the terms of the MIT License.
 
-Copyright (c) John R. Goodall (the "Original Author")
+Copyright (c) Mike Iannacone (the "Original Author")
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
  
