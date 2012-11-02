@@ -133,7 +133,7 @@ ReplayStream.prototype.write = function (data) {
         if (! self._ended) {
           //if (debug) { console.log('emitting') }
           if (debug) { console.log('b: result is ' + result) }
-          self.emit('data', this.formatOutput(msg))
+          self.emit('data', self.formatOutput(msg))
         }
         else {
           if (debug) { console.log('not emitting, ended already') }
