@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/ornl-visual-analytics/replay-stream.png?branch=master)](https://travis-ci.org/ornl-visual-analytics/replay-stream)
+[![Build Status](https://travis-ci.org/ornl-situ/replay-stream.png?branch=master)](https://travis-ci.org/ornl-situ/replay-stream)
 
 
 # filter/emit/shift JSON objects based on their timestamp
