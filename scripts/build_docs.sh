@@ -16,7 +16,7 @@
 # Build api doc from dox and copy to jekyll site as html
 #
 echo 'Building api doc...'
-./node_modules/dox-foundation/bin/dox-foundation > doc/api.html < regex-stream.js
+./node_modules/dox-foundation/bin/dox-foundation > doc/api.html < replay-stream.js
 API_SRC=doc/api.html
 API_DST=site/api.html
 cp ${API_SRC} ${API_DST}
@@ -31,7 +31,7 @@ TESTS_DST=site/tests.md
 ./node_modules/mocha/bin/mocha -R markdown > ${TESTS_SRC}
 echo '---
 layout: default
-title: regex-stream tests
+title: replay-stream tests
 ---
 ' > ${TESTS_DST}
 cat ${TESTS_SRC} >> ${TESTS_DST}
@@ -43,7 +43,7 @@ echo 'Converting README to home page for project web site...'
 INDEX_FILE=site/index.md
 echo '---
 layout: default
-title: regex-stream
+title: replay-stream
 ---
 ' > ${INDEX_FILE}
 cat README.md >> ${INDEX_FILE}
