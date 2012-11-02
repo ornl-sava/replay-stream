@@ -1,6 +1,6 @@
 ---
 layout: default
-title: regex-stream
+title: replay-stream
 ---
 
 [![Build Status](https://travis-ci.org/ornl-situ/replay-stream.png?branch=master)](https://travis-ci.org/ornl-situ/replay-stream)

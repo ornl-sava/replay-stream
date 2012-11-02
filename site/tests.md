@@ -1,6 +1,6 @@
 ---
 layout: default
-title: regex-stream tests
+title: replay-stream tests
 ---
 
 PAUSE STREAM PAUSING
