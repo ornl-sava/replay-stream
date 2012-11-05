@@ -92,6 +92,8 @@ function ReplayStream(replayConfig) {
     this._timestampOutputType = replayConfig.timestampOutputType
   }
 
+  if (debug) console.log('start time: ' + this._startTime + ', end time: ' + this._endTime)
+
   Stream.call(this)
   
   return this
