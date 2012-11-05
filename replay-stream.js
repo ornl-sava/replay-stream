@@ -58,13 +58,15 @@ function ReplayStream(replayConfig) {
     this._hasTimestamp = true
   //TODO if false, emit some warning/error ??
 
-  this.startTime = 0
-  if (replayConfig && replayConfig.startTime) 
-    this.startTime = replayConfig.startTime
+  this._startTime = 0
+  if (replayConfig && replayConfig.startTime) {
+    this._startTime = replayConfig.startTime
+  }
 
-  this.endTime = Number.MAX_VALUE 
-  if (replayConfig && replayConfig.endTime) 
-    this.endTime = replayConfig.endTime
+  this._endTime = 2147483648// * 10000
+  if (replayConfig && replayConfig.endTime) {
+    this._endTime = replayConfig.endTime
+  }
 
   this._paused = this._ended = this._destroyed = false
   
@@ -78,8 +80,8 @@ function ReplayStream(replayConfig) {
   //TODO sanity check these options, use defaults, etc.
   if (typeof replayConfig !== 'undefined') {
     this._relativeTime = replayConfig.relativeTime
-    this._startTime = replayConfig.startTime
-    this._endTime = replayConfig.endTime
+    //this._startTime = replayConfig.startTime
+    //this._endTime = replayConfig.endTime
 
     if (replayConfig.timestampName)
       this._timestampName = replayConfig.timestampName
@@ -92,7 +94,10 @@ function ReplayStream(replayConfig) {
     this._timestampOutputType = replayConfig.timestampOutputType
   }
 
-  if (debug) console.log('start time: ' + this._startTime + ', end time: ' + this._endTime)
+  if (debug) {
+    console.log('opts were: ' + JSON.stringify(replayConfig))
+    console.log('start time: ' + this._startTime + ', end time: ' + this._endTime)
+  }
 
   Stream.call(this)
   
@@ -129,7 +134,7 @@ ReplayStream.prototype.write = function (data) {
   
   var self = this
   var emitDelayed = function (msg) {
-    var delay = msg.timestamp - (self.startTime * 1000)
+    var delay = msg.timestamp - (self._startTime * 1000)
     //if (debug) { console.log('delay of ' + delay) }
     setTimeout(function () {
         if (! self._ended) {
