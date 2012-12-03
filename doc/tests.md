@@ -1,5 +1,3 @@
-PAUSE STREAM PAUSING
-PAUSE STREAM RESUMING
 # TOC
    - [Stream Specification Tests](#stream-specification-tests)
      - [# writable stream-spec](#stream-specification-tests--writable-stream-spec)
@@ -7,12 +5,12 @@ PAUSE STREAM RESUMING
      - [# through stream-spec](#stream-specification-tests--through-stream-spec)
    - [replay stream Tests](#replay-stream-tests)
      - [# simple stream test](#replay-stream-tests--simple-stream-test)
-     - [# simple timestamp test](#replay-stream-tests--simple-timestamp-test)
-<a name="" />
+     - [# simple timestamp tests](#replay-stream-tests--simple-timestamp-tests)
+<a name=""></a>
  
-<a name="stream-specification-tests" />
+<a name="stream-specification-tests"></a>
 # Stream Specification Tests
-<a name="stream-specification-tests--writable-stream-spec" />
+<a name="stream-specification-tests--writable-stream-spec"></a>
 ## # writable stream-spec
 should pass stream-spec validation for writable.
 
@@ -20,7 +18,7 @@ should pass stream-spec validation for writable.
 writableStreamSpec(new ReplayStream())
 ```
 
-<a name="stream-specification-tests--readable-stream-spec" />
+<a name="stream-specification-tests--readable-stream-spec"></a>
 ## # readable stream-spec
 should pass stream-spec validation for readable.
 
@@ -28,7 +26,7 @@ should pass stream-spec validation for readable.
 readableStreamSpec(new ReplayStream())
 ```
 
-<a name="stream-specification-tests--through-stream-spec" />
+<a name="stream-specification-tests--through-stream-spec"></a>
 ## # through stream-spec
 should pass stream-spec validation for through.
 
@@ -36,9 +34,9 @@ should pass stream-spec validation for through.
 readableStreamSpec(new ReplayStream())
 ```
 
-<a name="replay-stream-tests" />
+<a name="replay-stream-tests"></a>
 # replay stream Tests
-<a name="replay-stream-tests--simple-stream-test" />
+<a name="replay-stream-tests--simple-stream-test"></a>
 ## # simple stream test
 should pass pause-unpause stream tests.
 
@@ -46,19 +44,23 @@ should pass pause-unpause stream tests.
 pauseUnpauseStream()
 ```
 
-<a name="replay-stream-tests--simple-timestamp-test" />
-## # simple timestamp test
+<a name="replay-stream-tests--simple-timestamp-tests"></a>
+## # simple timestamp tests
 should pass simple timestamp reading.
 
 ```js
 simpleReplay(done)
 ```
 
-<a name="replay-stream-tests--simple-timestamp-test" />
-## # simple timestamp test
 should pass simple timestamp reading.
 
 ```js
 simpleReplayWithConversion(done)
+```
+
+should take simple time slice.
+
+```js
+simpleTimeSlice(done)
 ```
 
